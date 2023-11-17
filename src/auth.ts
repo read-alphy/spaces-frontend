@@ -1,7 +1,7 @@
 "use client"
 import {initializeApp} from 'firebase/app';
 import {getAuth, GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
-import {HOST} from './constants';
+import {HOST} from './utils';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDsPFuT_3Iivi8iqgT6uaWnOTcOQwDrzMs",

@@ -1,76 +1,87 @@
-"use client";
-import { useCallback, useEffect, useState } from "react";
-import { googleSignIn, auth, signOut, login } from "../auth";
-import { HOST } from "@/constants";
+"use client"
+import { useEffect, useState } from "react";
+import { login } from "../auth";
+import { HOST, SpaceDetail } from "@/utils";
 
 interface Space {
+  id: string;
   title: string;
   creator_name: string;
-  // add other properties as needed
 }
 
 export default function Home() {
-  // const [, updateState] = useState();
-  // const forceUpdate = useCallback(() => updateState(undefined), []);
+  const [spaces, setSpaces] = useState<Array<SpaceDetail> | null>(null);
+  const [inputValue, setInputValue] = useState("");
 
-  const loginWithRerender = async () => {
-    await login();
-    // forceUpdate();
-  };
-
-  const signOutWithRerender = () => {
-    signOut();
-    // forceUpdate();
-  };
-
-  const [space, setSpace] = useState<Space | null>(null);
-
+  // const router = useRouter();
+  
   useEffect(() => {
-    const getSpace = async (spaceID: string) => {
-      const resp = await fetch(`${HOST}/sp/${spaceID}`, {
+    const getSpaces = async () => {
+      // TODO limit offset
+      console.log("fetching spaces")
+      const resp = await fetch(`${HOST}/sp?in_progress=true`, {
         credentials: "include",
       });
       if (resp.status !== 200) {
-        console.log("Error fetching space");
+        console.log("Error fetching spaces");
         return null;
       }
       const data = await resp.json();
-      console.log("got space", data);
+      console.log("got spaces", data);
       return data;
     };
-    if (space === null) getSpace("1nAJEamDyvgJL").then(setSpace);
-  }, [space]);
+    if (spaces === null) getSpaces().then(setSpaces);
+  }, []);
 
-  // console.log("host", HOST)
-
-  // const getSpace = async (spaceID: string) => {
-  //     const resp = await fetch(`${HOST}/sp/${spaceID}`);
-  //     if (resp.status !== 200) {
-  //         console.log("Error fetching space");
-  //         return null;
-  //     }
-  //     const data = await resp.json();
-  //     console.log("got space", data)
-  //     return (
-  //         <div>
-  //             <h3>{data.title}</h3>
-  //             <p>{data.creator_name}</p>
-  //         </div>
-  //     )
-  // }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("Submitted value:", inputValue);
+    const resp = await fetch(`${HOST}/sp`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: inputValue, notify: true }),
+    })
+    setInputValue("");
+    if (resp.status !== 200) {
+      console.log("Error submitting space");
+      console.log(await resp.json())
+      return null;
+    }
+    const data = await resp.json();
+    console.log("submitted space", data);
+    // DID NOT WORK
+    // router.push(`/sp/${data.id}`)
+  };
 
   return (
     <>
-      <h1>My Space!</h1>
-      <p>Fetching space 1nAJEamDyvgJL</p>
-      {space && (
+      <h1><a href="/">Home</a></h1>
+      <h2>Welcome to twspace downloader</h2>
+      <p>If needed, <button onClick={login}>Google Login</button></p>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Input value:
+          <input type="text" placeholder="https://twitter.com/i/spaces/<space_id>" value={inputValue} onChange={(event) => setInputValue(event.target.value)} />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      <h3>Latest downloaded spaces</h3>
+      {spaces ? (
         <>
-          <h3>{space.title}</h3>
-          <p>{space.creator_name}</p>
+          {spaces.map((space) => (
+            <div key={space.id}>
+              <h3><a href={`/sp/${space.id}`}>{space.title}</a></h3>
+              <p>Creator: {space.creator_name}</p>
+              <p>ID: {space.id}</p>
+            </div>
+          ))}
         </>
-      )}
-      <button onClick={loginWithRerender}>Login</button>
-      <button onClick={signOutWithRerender}>Sign out</button>
+      ): <p>Fetching spaces...</p>}
+
+      
     </>
   );
 }
