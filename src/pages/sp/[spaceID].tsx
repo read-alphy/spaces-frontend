@@ -54,7 +54,7 @@ const SpacePage = () => {
               <h3>Title: {space.title}</h3>
               <p>Creator: {space.creator_name}</p>
               <p>ID: {space.id}</p>
-              <p>Media URL: {space.media_url}</p>
+              <p>Media URL: {space.media_url ? <audio controls src={space.media_url} /> : "Processing, please refresh."}</p>
             </>
           ) : (
             <p>Fetching space...</p>
