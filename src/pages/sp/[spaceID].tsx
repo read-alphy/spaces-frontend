@@ -40,7 +40,7 @@ const SpacePage = () => {
       }
     };
     if (space === null && spaceID) getSpace(spaceID).then(setSpace);
-  }, [spaceID]);
+  }, [spaceID, space]);
 
   return (
     <div>

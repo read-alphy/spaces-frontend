@@ -27,9 +27,7 @@ export const googleSignIn = async () => {
       // console.log('User signed in: ', result.user, "idToken: ", idToken);
       return idToken;
     } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(`Error ${errorCode}: ${errorMessage}`);
+      console.log(`Google sign-in error: ${error}`);
     }
 };
 

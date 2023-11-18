@@ -31,7 +31,7 @@ export default function Home() {
       return data;
     };
     if (spaces === null) getSpaces().then(setSpaces);
-  }, []);
+  }, [spaces]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
